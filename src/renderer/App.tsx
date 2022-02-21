@@ -1,40 +1,57 @@
+import { useEffect, useState } from 'react';
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import icon from '../../assets/icon.svg';
 import './App.css';
-
+import { DialogFileData } from './types';
 const Hello = () => {
+
+  const [items , setItem] = useState<any>();
+  const [filePath, setFilePath] = useState<string[]>();
+
+  const loadItem = async () =>{
+    // console.log(window);
+    // console.log(window.electron);
+
+    if(!window.electron) {
+      console.log("null");
+      return;
+    }
+    let result = await window.electron.electronAPI()
+    if(result?.length > 0){
+      setItem(result);
+    }
+    console.log(result);
+  }
+  const  openFileAA = async () => {
+    const files: DialogFileData =await window.electron.openFile();
+    console.log('user files', files);
+    if (files.filePaths) {
+      setFilePath(files.filePaths);
+    }
+}
+
+  // useEffect(()=>{
+  //   loadItem();
+  //   console.count()
+  // },[])
+
   return (
     <div>
-      <div className="Hello">
-        <img width="200px" alt="icon" src={icon} />
+      <button onClick={()=>{loadItem()}}>Get all user</button>
+      <div style={{paddingTop:"10px"}}>
+        <button type="button" id="btn" onClick={openFileAA} style={{marginRight:"10px"}}>Open a File</button>
+          File path: <strong id="filePath">{filePath}</strong>
       </div>
-      <h1>electron-react-boilerplate</h1>
-      <div className="Hello">
-        <a
-          href="https://electron-react-boilerplate.js.org/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            Read our docs
-          </button>
-        </a>
-        <a
-          href="https://github.com/sponsors/electron-react-boilerplate"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              🙏
-            </span>
-            Donate
-          </button>
-        </a>
-      </div>
+      <div>User from Db</div>
+      {items.map((item: any)=>{
+        console.log(item);
+
+        return (
+          <></>
+        // <div>{item?.id}</div>
+          )
+      })}
+      {/* <div>{item?.id}</div> */}
     </div>
   );
 };

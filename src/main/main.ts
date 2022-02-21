@@ -11,39 +11,97 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
-import sqlite from 'sqlite3';
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
+// import sqlite from 'sqlite3';
+import betterSqlite from 'better-sqlite3';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
-export default class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
+
+let databasePath = 'db/test.db';
+
+
+
+
+function createDataBase() {
+  /**
+   * starting connection
+   */
+  let database;
+  try {
+    database = betterSqlite(databasePath);
+  } catch(err) {
+    database = new betterSqlite(databasePath);
   }
+  /**
+   * creating table if not exists in the db
+   */
+  const sqlScript = `CREATE TABLE IF NOT EXISTS products(
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    url TEXT NOT NULL);`;
+
+  /**
+   * run script
+   */
+  database.prepare(sqlScript).run();
+  /**
+   * close connection
+   */
+  database.close();
+
 }
 
-const sqlite3 = sqlite.verbose();
-const db = new sqlite3.Database(':memory:');
+const getAllCustomer = async () => {
+  /**
+   * starting connection
+   */
+  console.log("inside query");
 
-db.serialize(() => {
-  db.run('CREATE TABLE lorem (info TEXT)');
+  let page : number = 1;
+  const database = betterSqlite(databasePath);
+  console.log(databasePath);
 
-  const stmt = db.prepare('INSERT INTO lorem VALUES (?)');
-  for (let i = 0; i < 10; i += 1) {
-    stmt.run(`Ipsum ${i}`);
+  /**
+   * selecting all in the interval to 10 for each page
+   */
+  const sqlScript = `SELECT * FROM 'customer'`;
+  // WHERE(id > ? AND id <= ?);`
+
+
+  /**
+   * preparing and running script
+   */
+  const dbResponse = database.prepare(sqlScript).all();
+  // const dbResponse = database.prepare(sqlScript).all(((page-1)*10), (page*10));
+
+  /**
+   * for pagination
+   *
+   * the number of all in database
+   */
+  //  const numberOfProducts = 10;
+   const numberOfProducts = database.prepare('SELECT * FROM customer;').all().length;
+
+  /**
+   * organizing to be more clear in the react app
+   */
+  const productInfo = {
+    page,
+    pages: (numberOfProducts / 10) + 1
   }
-  stmt.finalize();
+  const response = {
+    data: dbResponse,
+    productInfo
+  };
 
-  db.each('SELECT rowid AS id, info FROM lorem', (_err, row) => {
-    console.log(`${row.id}: ${row.info}`);
-  });
-});
-
-db.close();
+   /**
+    * disconect
+    */
+  database.close();
+  return response;
+}
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -51,6 +109,18 @@ ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
+});
+
+ipcMain.handle('searcDb', async() =>{
+  const result = await getAllCustomer();
+  console.log("da cal xong searcDb");
+  return result;
+});
+
+ipcMain.handle('openFile',async ()=>{
+  // await handleFileOpen();
+  const result  = await dialog.showOpenDialog({ properties: ['openFile'] });
+  return result;
 });
 
 if (process.env.NODE_ENV === 'production') {
@@ -101,6 +171,11 @@ const createWindow = async () => {
     },
   });
 
+  // console.log("createWindow");
+  // console.log(mainWindow);
+  //console.log(path.join(__dirname, 'preload.js'));
+
+
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
@@ -129,8 +204,9 @@ const createWindow = async () => {
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
-  new AppUpdater();
+  //new AppUpdater();
 };
+
 
 /**
  * Add event listeners...
@@ -144,10 +220,18 @@ app.on('window-all-closed', () => {
   }
 });
 
+const handleFileOpen = async () => {
+  const result  = await dialog.showOpenDialog({ properties: ['openFile'] });
+  return result;
+}
+
 app
   .whenReady()
   .then(() => {
+    // ipcMain.handle('searchDb',getAllCustomer);
+    //ipcMain.handle('openFile', handleFileOpen)
     createWindow();
+    createDataBase();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.

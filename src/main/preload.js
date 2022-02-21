@@ -1,7 +1,6 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, ipcMain } = require('electron');
 
 contextBridge.exposeInMainWorld('electron', {
-  ipcRenderer: {
     myPing() {
       ipcRenderer.send('ipc-example', 'ping');
     },
@@ -19,5 +18,6 @@ contextBridge.exposeInMainWorld('electron', {
         ipcRenderer.once(channel, (event, ...args) => func(...args));
       }
     },
-  },
+    electronAPI: () => ipcRenderer.invoke('searcDb'),
+    openFile: async () => ipcRenderer.invoke('openFile')
 });
