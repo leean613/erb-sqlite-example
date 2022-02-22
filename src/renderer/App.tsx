@@ -43,14 +43,14 @@ const Hello = () => {
           File path: <strong id="filePath">{filePath}</strong>
       </div>
       <div>User from Db</div>
-      {items.map((item: any)=>{
+      {/* {items.map((item: any)=>{
         console.log(item);
 
         return (
           <></>
         // <div>{item?.id}</div>
           )
-      })}
+      })} */}
       {/* <div>{item?.id}</div> */}
     </div>
   );

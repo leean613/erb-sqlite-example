@@ -18,7 +18,7 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
 
-let databasePath = 'db/test.db';
+let databasePath = 'src/Database/test.db';
 
 
 
@@ -73,6 +73,8 @@ const getAllCustomer = async () => {
   /**
    * preparing and running script
    */
+  console.log("trc query");
+
   const dbResponse = database.prepare(sqlScript).all();
   // const dbResponse = database.prepare(sqlScript).all(((page-1)*10), (page*10));
 
@@ -82,6 +84,8 @@ const getAllCustomer = async () => {
    * the number of all in database
    */
   //  const numberOfProducts = 10;
+  console.log("sau query");
+
    const numberOfProducts = database.prepare('SELECT * FROM customer;').all().length;
 
   /**
