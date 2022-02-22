@@ -18,8 +18,9 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
 
-let databasePath = 'src/Database/test.db';
+// let databasePath = 'src/Database/test.db';
 
+let databasePath = 'db/test.db';
 
 
 
@@ -36,16 +37,15 @@ function createDataBase() {
   /**
    * creating table if not exists in the db
    */
-  const sqlScript = `CREATE TABLE IF NOT EXISTS products(
+  const sqlScript = `CREATE TABLE IF NOT EXISTS customer(
     id TEXT PRIMARY KEY,
-    title TEXT NOT NULL,
-    description TEXT NOT NULL,
-    url TEXT NOT NULL);`;
+    password TEXT NOT NULL);`;
 
   /**
    * run script
    */
   database.prepare(sqlScript).run();
+
   /**
    * close connection
    */
