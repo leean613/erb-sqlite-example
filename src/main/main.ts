@@ -53,59 +53,54 @@ function createDataBase() {
 
 }
 
-const getAllCustomer = async () => {
-  /**
-   * starting connection
-   */
-  console.log("inside query");
+// const getAllCustomer = async () => {
+//   /**
+//    * starting connection
+//    */
 
-  let page : number = 1;
-  const database = betterSqlite(databasePath);
-  console.log(databasePath);
+//   let page : number = 1;
+//   const database = betterSqlite(databasePath);
 
-  /**
-   * selecting all in the interval to 10 for each page
-   */
-  const sqlScript = `SELECT * FROM 'customer'`;
-  // WHERE(id > ? AND id <= ?);`
+//   /**
+//    * selecting all in the interval to 10 for each page
+//    */
+//   const sqlScript = `SELECT * FROM 'customer'`;
+//   // WHERE(id > ? AND id <= ?);`
 
 
-  /**
-   * preparing and running script
-   */
-  console.log("trc query");
+//   /**
+//    * preparing and running script
+//    */
 
-  const dbResponse = database.prepare(sqlScript).all();
-  // const dbResponse = database.prepare(sqlScript).all(((page-1)*10), (page*10));
+//   const dbResponse = database.prepare(sqlScript).all();
+//   // const dbResponse = database.prepare(sqlScript).all(((page-1)*10), (page*10));
 
-  /**
-   * for pagination
-   *
-   * the number of all in database
-   */
-  //  const numberOfProducts = 10;
-  console.log("sau query");
+//   /**
+//    * for pagination
+//    *
+//    * the number of all in database
+//    */
 
-   const numberOfProducts = database.prepare('SELECT * FROM customer;').all().length;
+//    const numberOfProducts = database.prepare('SELECT * FROM customer;').all().length;
 
-  /**
-   * organizing to be more clear in the react app
-   */
-  const productInfo = {
-    page,
-    pages: (numberOfProducts / 10) + 1
-  }
-  const response = {
-    data: dbResponse,
-    productInfo
-  };
+//   /**
+//    * organizing to be more clear in the react app
+//    */
+//   const productInfo = {
+//     page,
+//     pages: (numberOfProducts / 10) + 1
+//   }
+//   const response = {
+//     data: dbResponse,
+//     productInfo
+//   };
 
-   /**
-    * disconect
-    */
-  database.close();
-  return response;
-}
+//    /**
+//     * disconect
+//     */
+//   database.close();
+//   return response;
+// }
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -117,7 +112,6 @@ ipcMain.on('ipc-example', async (event, arg) => {
 
 ipcMain.handle('searcDb', async() =>{
   const result = await getAllCustomer();
-  console.log("da cal xong searcDb");
   return result;
 });
 
@@ -174,10 +168,6 @@ const createWindow = async () => {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
-
-  // console.log("createWindow");
-  // console.log(mainWindow);
-  //console.log(path.join(__dirname, 'preload.js'));
 
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
