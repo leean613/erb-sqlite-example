@@ -12,17 +12,15 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
-// import sqlite from 'sqlite3';
 import betterSqlite from 'better-sqlite3';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { getAllCustomer } from '../api/customer/api';
 
 
 // let databasePath = 'src/Database/test.db';
 
 let databasePath = 'db/test.db';
-
-
 
 function createDataBase() {
   /**
@@ -51,60 +49,6 @@ function createDataBase() {
    */
   database.close();
 
-}
-
-const getAllCustomer = async () => {
-  /**
-   * starting connection
-   */
-  console.log("inside query");
-
-  let page : number = 1;
-  const database = betterSqlite(databasePath);
-  console.log(databasePath);
-
-  /**
-   * selecting all in the interval to 10 for each page
-   */
-  const sqlScript = `SELECT * FROM 'customer'`;
-  // WHERE(id > ? AND id <= ?);`
-
-
-  /**
-   * preparing and running script
-   */
-  console.log("trc query");
-
-  const dbResponse = database.prepare(sqlScript).all();
-  // const dbResponse = database.prepare(sqlScript).all(((page-1)*10), (page*10));
-
-  /**
-   * for pagination
-   *
-   * the number of all in database
-   */
-  //  const numberOfProducts = 10;
-  console.log("sau query");
-
-   const numberOfProducts = database.prepare('SELECT * FROM customer;').all().length;
-
-  /**
-   * organizing to be more clear in the react app
-   */
-  const productInfo = {
-    page,
-    pages: (numberOfProducts / 10) + 1
-  }
-  const response = {
-    data: dbResponse,
-    productInfo
-  };
-
-   /**
-    * disconect
-    */
-  database.close();
-  return response;
 }
 
 let mainWindow: BrowserWindow | null = null;
@@ -174,11 +118,6 @@ const createWindow = async () => {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
-
-  // console.log("createWindow");
-  // console.log(mainWindow);
-  //console.log(path.join(__dirname, 'preload.js'));
-
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
