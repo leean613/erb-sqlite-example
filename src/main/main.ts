@@ -22,34 +22,8 @@ import { getAllCustomer } from '../api/customer/api';
 
 let databasePath = 'db/test.db';
 
-function createDataBase() {
-  /**
-   * starting connection
-   */
-  let database;
-  try {
-    database = betterSqlite(databasePath);
-  } catch(err) {
-    database = new betterSqlite(databasePath);
-  }
-  /**
-   * creating table if not exists in the db
-   */
-  const sqlScript = `CREATE TABLE IF NOT EXISTS customer(
-    id TEXT PRIMARY KEY,
-    password TEXT NOT NULL);`;
+// function createDataBase() {
 
-  /**
-   * run script
-   */
-  database.prepare(sqlScript).run();
-
-  /**
-   * close connection
-   */
-  database.close();
-
-}
 
 let mainWindow: BrowserWindow | null = null;
 
