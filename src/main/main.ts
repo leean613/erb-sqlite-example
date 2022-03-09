@@ -148,7 +148,7 @@ app
     // ipcMain.handle('searchDb',getAllCustomer);
     //ipcMain.handle('openFile', handleFileOpen)
     createWindow();
-    createDataBase();
+    // createDataBase();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
